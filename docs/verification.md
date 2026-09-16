@@ -2,7 +2,7 @@
 
 ## Automated contract checks
 
-The local Python 3.12.12 / Windows run passed **55 tests**. The CI workflow runs
+The local Python 3.12.12 / Windows run passed **57 tests**. The CI workflow runs
 the same suite on Linux, Windows and macOS and builds the Docker image with a
 real HTTP handshake. See [current CI results](https://github.com/BK927/x-mcp/actions/workflows/ci.yml).
 The locked environment uses the official Python MCP SDK 2.2.0 and twscrape 0.20.1.
@@ -28,6 +28,8 @@ Coverage includes:
 One upstream Starlette/AnyIO deprecation warning appears in the local test runner;
 it is not a failing check. Tests never use real X sessions. Docker was not
 available on the implementation workstation; its build/runtime checks run in CI.
+The first published revision passed all three OS jobs and the Docker HTTP
+smoke test in [this CI run](https://github.com/BK927/x-mcp/actions/runs/35083430136).
 
 ## Token benchmark
 

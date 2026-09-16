@@ -122,11 +122,16 @@ class FxTwitterProvider:
                     try:
                         body = json.loads(b"".join(chunks)) if size else {}
                     except (ValueError, UnicodeError) as exc:
-                        raise XError(
-                            "PROVIDER_CHANGED",
-                            "Free API did not return recognized JSON.",
-                            retryable=True,
-                        ) from exc
+                        if response.status_code >= 400:
+                            # Gateways may return HTML for 429/5xx. Preserve the
+                            # HTTP failure classification without exposing it.
+                            body = {}
+                        else:
+                            raise XError(
+                                "PROVIDER_CHANGED",
+                                "Free API did not return recognized JSON.",
+                                retryable=True,
+                            ) from exc
                     code = response.status_code
                     if isinstance(body, dict) and isinstance(body.get("code"), int):
                         code = max(code, body["code"])
