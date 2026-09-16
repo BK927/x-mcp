@@ -132,8 +132,8 @@ uv run --frozen --no-dev --extra session x-mcp serve --transport http
 ```
 
 Endpoints: `http://127.0.0.1:8766/mcp`, `http://127.0.0.1:8766/healthz`.
-Set `MCP_ACCESS_TOKEN` to a random secret of at least 32 characters before binding
-outside loopback. For HTTPS ingress set `PUBLIC_BASE_URL=https://x-mcp.example.com`
+Set `MCP_ACCESS_TOKEN` to a random secret of at least 32 characters before starting
+HTTP, including on loopback. For HTTPS ingress set `PUBLIC_BASE_URL=https://x-mcp.example.com`
 to your exact origin. Clients send `Authorization: Bearer ...`.
 
 Docker is a single-user, single-instance deployment with a persistent state
@@ -149,7 +149,7 @@ OAuth, multi-user SaaS, Cloud Run and background collectors are outside v0.1.
 | `X_MCP_MAX_RESULT_BYTES` | 12288; configurable 4096–32768 |
 | `X_MCP_RESULT_TTL` | 3600 seconds; configurable 60–86400 |
 | `MCP_HOST`, `MCP_PORT` | 127.0.0.1, 8766 |
-| `MCP_ACCESS_TOKEN` | Empty; mandatory for non-loopback HTTP |
+| `MCP_ACCESS_TOKEN` | Empty; mandatory for all HTTP; stdio does not require it |
 | `PUBLIC_BASE_URL` | Empty; exact HTTPS origin for remote host/origin validation |
 
 State contains public-result snapshots, cached queries, a cursor signing key,
@@ -157,6 +157,9 @@ health observations and optional session/account files. Queries may themselves
 be sensitive. Files stay on your machine; protect the whole state directory.
 FxTwitter receives public lookup IDs/handles/searches, **never X cookies**.
 twscrape telemetry is disabled. See [privacy](PRIVACY.md) and [security](SECURITY.md).
+X cookies are account credentials, not read-scoped API tokens. The current process
+can read plaintext session files and its account DB; do not replicate a primary
+account's cookies across cloud workers. See the [credential threat model](docs/security-model.md).
 
 ## Development
 

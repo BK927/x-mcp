@@ -283,11 +283,12 @@ class HttpGateway:
             if scope["path"] == "/healthz" and scope["method"] == "GET":
                 return await self.respond(send, 200, {"status": "ok"})
             token = self.service.settings.access_token
-            if token:
-                headers = {k.lower(): v for k, v in scope.get("headers", [])}
-                expected = f"Bearer {token}".encode()
-                if not secrets.compare_digest(headers.get(b"authorization", b""), expected):
-                    return await self.respond(send, 401, {"error": "unauthorized"})
+            headers = {k.lower(): v for k, v in scope.get("headers", [])}
+            expected = f"Bearer {token}".encode()
+            if not token or not secrets.compare_digest(
+                headers.get(b"authorization", b""), expected
+            ):
+                return await self.respond(send, 401, {"error": "unauthorized"})
         return await self.app(scope, receive, send)
 
     @staticmethod
@@ -301,10 +302,13 @@ class HttpGateway:
 
 def create_http_app(server: MCPServer, service: Service) -> HttpGateway:
     settings = service.settings
-    if settings.host not in {"127.0.0.1", "localhost", "::1"} and len(settings.access_token) < 32:
+    # A loopback listener can be published through a reverse proxy or tunnel.
+    # The bind address cannot establish whether the original caller is local.
+    token = settings.access_token
+    if len(token) < 32 or not token.isascii() or any(ord(c) <= 32 or ord(c) == 127 for c in token):
         raise XError(
             "HTTP_AUTH_REQUIRED",
-            "Non-loopback HTTP requires MCP_ACCESS_TOKEN with at least 32 characters.",
+            "HTTP requires a random MCP_ACCESS_TOKEN of at least 32 printable ASCII characters without whitespace, including on loopback. Use stdio for local access without a network token.",
         )
     allowed_hosts = ["127.0.0.1", "localhost", "[::1]", "127.0.0.1:*", "localhost:*", "[::1]:*"]
     allowed_origins = [

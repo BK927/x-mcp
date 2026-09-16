@@ -43,7 +43,7 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 docker compose up -d --build
 ```
 
-Compose binds `127.0.0.1:8766` on the host, stores state in a named volume, and runs as UID 10001 with a read-only root filesystem. `/healthz` is an unauthenticated minimal liveness response; `/mcp` requires the bearer token. The image includes the session adapter but no browser. It refuses a non-loopback bind without a token of at least 32 characters.
+Compose binds `127.0.0.1:8766` on the host, stores state in a named volume, and runs as UID 10001 with a read-only root filesystem. `/healthz` is an unauthenticated minimal liveness response; `/mcp` requires the bearer token. The image includes the session adapter but no browser. Every HTTP launch, including a loopback listener, requires a random token of at least 32 printable ASCII characters without whitespace. A proxy/tunnel can publish loopback, so the listening address never exempts authentication. Local stdio does not require this token.
 
 For a personal HTTPS endpoint, set `PUBLIC_BASE_URL=https://your-host.example` and put a TLS reverse proxy in front of the loopback port. An example Caddy configuration:
 
@@ -66,7 +66,7 @@ services:
       - /absolute/private/session.json:/run/secrets/x-session.json:ro
 ```
 
-The source file is mounted read-only; the adapter keeps a second private cookie copy in `/state/x-mcp/account.db`. Refresh the mount when the session expires. Do not mount a complete browser profile. Backups of the state volume contain sensitive session and research data.
+The source file is mounted read-only; the adapter keeps a second private cookie copy in `/state/x-mcp/account.db`. Read-only mounts prevent writes to the source file; they do not prevent the process from reading/exfiltrating it. Both copies are plaintext at the application layer. Refresh the mount when the session expires. Do not mount a complete browser profile. Backups of the state volume contain sensitive session and research data. Prefer one trusted credential-holding host instead of cookie replication across workers. See the [security model](security-model.md).
 
 Run one process/replica per state directory. This implementation serializes provider requests; it is not a multi-user service. A token grants access to the owner's saved research. Rotate it by changing the environment and restarting the server. Do not publish `.env`, cookie exports, or the state volume.
 

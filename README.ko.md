@@ -115,13 +115,18 @@ LLM으로 감성 분석·번역·요약하지 않습니다.
 uv run --frozen --no-dev --extra session x-mcp serve --transport http
 ```
 
-기본 주소는 `http://127.0.0.1:8766/mcp`입니다. 외부 바인딩에는 32자 이상의 무작위
-`MCP_ACCESS_TOKEN`을 설정하고 HTTPS 프록시를 사용하세요. 실제 HTTPS origin을
+기본 주소는 `http://127.0.0.1:8766/mcp`입니다. 로컬 주소를 포함한 모든 HTTP 실행에는
+32자 이상의 무작위 `MCP_ACCESS_TOKEN`이 필요합니다. 외부 접속에는 HTTPS 프록시를 사용하고 실제 HTTPS origin을
 `PUBLIC_BASE_URL`로 지정합니다. Docker 및 상태 볼륨 구성은
 [배포 문서](docs/deployment.md)를 참고하세요.
 
 공개 소스·개인용 단일 서버를 대상으로 합니다. 다중 사용자 SaaS, 웹 ChatGPT 전용
 OAuth, Cloud Run 전용 구성, 상시 수집은 첫 버전에 포함하지 않습니다.
+
+**X 쿠키는 읽기 전용 권한의 API 키가 아닙니다.** 현재 세션 파일과 계정 DB는 파일
+접근 권한으로 보호되며 애플리케이션 암호화는 없습니다. 서버가 침해되면 쿠키가 노출될
+수 있습니다. 주 계정 쿠키를 여러 클라우드 워커에 복제하기보다 신뢰하는 한 호스트에
+보관하는 구성을 권장합니다. [자격 증명 보안 설계](docs/security-model.md)를 참고하세요.
 
 무료 API 운영과 X 내부 구현은 바뀔 수 있습니다. 이 프로젝트는 X와 관계없는
 비공식 MIT 프로젝트이며, 무료는 유료 데이터 API를 호출하지 않는다는 뜻입니다.

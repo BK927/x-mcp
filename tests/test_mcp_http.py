@@ -62,12 +62,47 @@ async def test_http_gateway_requires_bearer_and_leaves_health_minimal(service_fa
         assert service.settings.access_token not in response.text
 
 
-def test_non_loopback_server_refuses_missing_token(service_factory):
+@pytest.mark.parametrize(
+    "host, public_origin",
+    [
+        ("0.0.0.0", ""),
+        ("127.0.0.1", ""),
+        ("localhost", ""),
+        ("::1", ""),
+        ("127.0.0.1", "https://research.example"),
+    ],
+)
+@pytest.mark.parametrize("token", ["", "short", " " * 32])
+def test_http_always_refuses_missing_or_invalid_token(service_factory, host, public_origin, token):
     service = service_factory()
-    service.settings.host = "0.0.0.0"
+    service.settings.host = host
+    service.settings.public_base_url = public_origin
+    service.settings.access_token = token
     with pytest.raises(XError) as error:
         create_http_app(create_server(service), service)
     assert error.value.code == "HTTP_AUTH_REQUIRED"
+
+
+async def test_forwarded_headers_and_cleared_token_cannot_disable_auth(service_factory):
+    service = service_factory()
+    service.settings.public_base_url = "https://research.example"
+    service.settings.access_token = "synthetic-http-token-" * 3
+    gateway = create_http_app(create_server(service), service)
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=gateway), base_url="http://localhost"
+    ) as client:
+        response = await client.post(
+            "/mcp",
+            json={},
+            headers={
+                "Host": "research.example",
+                "X-Forwarded-For": "127.0.0.1",
+                "X-Forwarded-Proto": "https",
+            },
+        )
+        assert response.status_code == 401
+        service.settings.access_token = ""
+        assert (await client.post("/mcp", json={})).status_code == 401
 
 
 def test_http_full_initialize_list_call_and_origin_rejection(service_factory):
