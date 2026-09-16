@@ -1,0 +1,44 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.9"
+          enable-cache: true
+      - run: uv sync --frozen --python 3.12 --extra session --extra browser
+      - run: uv run --frozen --extra session --extra browser ruff check src tests scripts
+      - run: uv run --frozen --extra session --extra browser ruff format --check src tests scripts
+      - run: uv run --frozen --extra session --extra browser pytest -q
+      - run: uv run --frozen --extra session --extra browser python scripts/benchmark_tokens.py
+      - run: uv build --no-sources
+
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t x-mcp:test .
+      - name: Test personal HTTP deployment
+        shell: bash
+        run: |
+          export MCP_ACCESS_TOKEN="$(python3 -c 'import secrets; print(secrets.token_urlsafe(32))')"
+          container_id=$(docker run -d --read-only --tmpfs /tmp:rw,size=64m --cap-drop ALL --security-opt no-new-privileges -e MCP_ACCESS_TOKEN -p 127.0.0.1:8766:8766 x-mcp:test)
+          trap 'docker logs "$container_id"; docker rm -fv "$container_id" >/dev/null' EXIT
+          for attempt in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8766/healthz && break
+            sleep 1
+          done
+          python3 scripts/http_smoke.py

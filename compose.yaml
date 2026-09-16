@@ -1,0 +1,23 @@
+services:
+  x-mcp:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8766:8766"
+    environment:
+      MCP_ACCESS_TOKEN: ${MCP_ACCESS_TOKEN:?Set a random token of at least 32 characters}
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-}
+      X_MCP_STATE_DIR: /state/x-mcp
+      TWS_TELEMETRY: "0"
+    volumes:
+      - x-mcp-state:/state
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  x-mcp-state:

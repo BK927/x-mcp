@@ -1,0 +1,70 @@
+{
+  "tokenizer": "o200k_base",
+  "fixture": "deterministic synthetic API-shaped EN/KO/JA lists; not a live workload",
+  "tools": 8,
+  "tool_list_tokens": 3230,
+  "median_payload_reduction_percent": 71.97,
+  "cases": [
+    {
+      "language": "en",
+      "requested_items": 10,
+      "returned_items": 10,
+      "raw_equal_item_tokens": 4073,
+      "compact_payload_tokens": 1217,
+      "payload_reduction_percent": 70.12,
+      "raw_compat_wire_tokens": 8242,
+      "compact_compat_wire_tokens": 2483
+    },
+    {
+      "language": "en",
+      "requested_items": 20,
+      "returned_items": 20,
+      "raw_equal_item_tokens": 8123,
+      "compact_payload_tokens": 2196,
+      "payload_reduction_percent": 72.97,
+      "raw_compat_wire_tokens": 16412,
+      "compact_compat_wire_tokens": 4461
+    },
+    {
+      "language": "ko",
+      "requested_items": 10,
+      "returned_items": 10,
+      "raw_equal_item_tokens": 4833,
+      "compact_payload_tokens": 1407,
+      "payload_reduction_percent": 70.89,
+      "raw_compat_wire_tokens": 9762,
+      "compact_compat_wire_tokens": 2863
+    },
+    {
+      "language": "ko",
+      "requested_items": 20,
+      "returned_items": 20,
+      "raw_equal_item_tokens": 9643,
+      "compact_payload_tokens": 2576,
+      "payload_reduction_percent": 73.29,
+      "raw_compat_wire_tokens": 19452,
+      "compact_compat_wire_tokens": 5221
+    },
+    {
+      "language": "ja",
+      "requested_items": 10,
+      "returned_items": 10,
+      "raw_equal_item_tokens": 4913,
+      "compact_payload_tokens": 1426,
+      "payload_reduction_percent": 70.97,
+      "raw_compat_wire_tokens": 9922,
+      "compact_compat_wire_tokens": 2901
+    },
+    {
+      "language": "ja",
+      "requested_items": 20,
+      "returned_items": 20,
+      "raw_equal_item_tokens": 9803,
+      "compact_payload_tokens": 2621,
+      "payload_reduction_percent": 73.26,
+      "raw_compat_wire_tokens": 19772,
+      "compact_compat_wire_tokens": 5311
+    }
+  ],
+  "targets_pass": true
+}

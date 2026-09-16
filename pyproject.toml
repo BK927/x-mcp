@@ -1,0 +1,59 @@
+[project]
+name = "bk927-x-mcp"
+version = "0.1.0"
+description = "Read-only X research MCP with free public APIs, optional sessions, and bounded results."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+authors = [{ name = "BK927" }]
+dependencies = [
+  "mcp>=2.1,<3",
+  "httpx>=0.28,<1",
+  "pydantic>=2.12,<3",
+  "platformdirs>=4,<5",
+  "uvicorn>=0.41,<1",
+]
+
+[project.optional-dependencies]
+session = ["twscrape==0.20.1"]
+browser = ["playwright>=1.55,<2"]
+
+[dependency-groups]
+dev = ["pytest>=9,<10", "pytest-asyncio>=1.3,<2", "ruff>=0.15,<1", "tiktoken>=0.12,<1"]
+
+[project.scripts]
+x-mcp = "x_mcp.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/BK927/x-mcp"
+Repository = "https://github.com/BK927/x-mcp"
+Issues = "https://github.com/BK927/x-mcp/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/x_mcp"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src", "/tests", "/scripts", "/docs", "/examples",
+  "/pyproject.toml", "/uv.lock", "/README*.md", "/LICENSE",
+  "/PRIVACY.md", "/SECURITY.md", "/THIRD_PARTY_NOTICES.md",
+  "/Dockerfile", "/compose.yaml", "/.env.example", "/.dockerignore",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+markers = ["live: opt-in public network checks"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "I", "UP"]
+ignore = ["E501"]

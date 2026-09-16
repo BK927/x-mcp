@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "x": {
+      "command": "uv",
+      "args": ["run", "--directory", "/absolute/path/to/x-mcp", "--frozen", "--no-dev", "x-mcp", "serve"]
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "x": {
+      "url": "https://your-host.example/mcp",
+      "headers": {"Authorization": "Bearer REPLACE_WITH_YOUR_LOCAL_SECRET"}
+    }
+  }
+}
